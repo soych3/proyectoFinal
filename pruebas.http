@@ -1,65 +1,71 @@
 ### =====================================================================
 ### PRUEBAS CON REST CLIENT (extensión de VS Code)
-### Cada bloque se separa con ###. Se ejecuta con el enlace "Send Request"
-### que aparece sobre la línea de la petición.
-### La primera línea de la respuesta muestra el código de estado (HTTP/1.1 201, etc.)
+### Cada bloque se separa con ###. Ejecutar con "Send Request".
+### Requiere la app corriendo en :8080 y MySQL activo.
 ### =====================================================================
 
+### 1. Categorías (para el desplegable del formulario) -> 200
+GET http://localhost:8080/api/categorias
 
-### ---------------------------------------------------------------------
-### 1. GET productos -> 200 OK
-### 
-### ---------------------------------------------------------------------
-GET http://localhost:8080/productos
+### 2. Listar productos -> 200
+GET http://localhost:8080/api/productos
 
-
-### ---------------------------------------------------------------------
-### 2. POST crear producto -> 201 Created
-### 
-### ---------------------------------------------------------------------
-POST http://localhost:8080/productos
+### 3. Crear producto -> 201
+POST http://localhost:8080/api/productos
 Content-Type: application/json
 
 {
-  "nombre": "Remera",
-  "precio": 15000,
-  "stock": 10,
-  "categoria": "Ropa"
+  "nombre": "Café Premium",
+  "descripcion": "Café colombiano tostado",
+  "precio": 12.50,
+  "categoriaId": 1,
+  "imagenUrl": "http://ejemplo.com/cafe.jpg",
+  "stock": 100
 }
 
+### 4. Producto por id -> 200 (404 si no existe)
+GET http://localhost:8080/api/productos/1
 
-### ---------------------------------------------------------------------
-### 3. GET por id -> 200 OK
-### Usar un id que exista (el primer producto creado tiene id 1).
-### ---------------------------------------------------------------------
-GET http://localhost:8080/productos/1
-
-
-### ---------------------------------------------------------------------
-### 4. PUT actualizar -> 200 OK
-### El id va en la URL (@PathVariable) y los datos nuevos en el cuerpo (@RequestBody).
-### ---------------------------------------------------------------------
-PUT http://localhost:8080/productos/1
+### 5. Actualizar producto -> 200
+PUT http://localhost:8080/api/productos/1
 Content-Type: application/json
 
 {
-  "nombre": "Remera estampada",
-  "precio": 18000,
-  "stock": 8,
-  "categoria": "Ropa"
+  "nombre": "Café Premium 500g",
+  "descripcion": "Café colombiano tostado",
+  "precio": 14.00,
+  "categoriaId": 1,
+  "imagenUrl": "http://ejemplo.com/cafe.jpg",
+  "stock": 90
 }
 
+### 6. Productos por categoría -> 200
+GET http://localhost:8080/api/productos/categoria/Ropa
 
-### ---------------------------------------------------------------------
-### 5. DELETE eliminar -> 204 No Content
-### La respuesta no tiene cuerpo. Después, repetir el GET por id (bloque 3).
-### ---------------------------------------------------------------------
-DELETE http://localhost:8080/productos/1
+### 7. Crear pedido (usuario demo = id 1) -> 201, estado PENDIENTE, descuenta stock
+POST http://localhost:8080/api/pedidos
+Content-Type: application/json
 
+{
+  "usuarioId": 1,
+  "lineas": [
+    { "productoId": 1, "cantidad": 2 }
+  ]
+}
 
-### =====================================================================
-### 
-### =====================================================================
+### 8. Pedido sin stock suficiente -> 400 con mensaje claro
+POST http://localhost:8080/api/pedidos
+Content-Type: application/json
 
+{
+  "usuarioId": 1,
+  "lineas": [
+    { "productoId": 1, "cantidad": 99999 }
+  ]
+}
 
+### 9. Historial de pedidos del usuario -> 200
+GET http://localhost:8080/api/usuarios/1/pedidos
 
+### 10. Eliminar producto -> 204 (falla con 500 si tiene pedidos asociados, ver README)
+DELETE http://localhost:8080/api/productos/1

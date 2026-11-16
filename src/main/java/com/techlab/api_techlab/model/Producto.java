@@ -2,6 +2,7 @@ package com.techlab.api_techlab.model;
 
 import java.math.BigDecimal;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,19 +17,15 @@ public class Producto {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String nombre;
+    private String descripcion;
+    @Column(precision = 12, scale = 2)
     private BigDecimal precio;
+    private String imagenUrl;
     private int stock;
 
     @ManyToOne
     @JoinColumn(name = "categoria_id")
     private Categoria categoria;
-
-    public Producto(String nombre, BigDecimal precio, int stock, Categoria categoria) {
-        this.nombre = nombre;
-        this.precio = precio;
-        this.stock = stock;
-        this.categoria = categoria;
-    }
 
     // Constructor vacío: lo necesita JPA para crear los objetos al leer la base
     public Producto() {
@@ -48,6 +45,22 @@ public class Producto {
 
     public void setNombre(String nombre) {
         this.nombre = nombre;
+    }
+
+    public String getDescripcion() {
+        return descripcion;
+    }
+
+    public void setDescripcion(String descripcion) {
+        this.descripcion = descripcion;
+    }
+
+    public String getImagenUrl() {
+        return imagenUrl;
+    }
+
+    public void setImagenUrl(String imagenUrl) {
+        this.imagenUrl = imagenUrl;
     }
 
     public BigDecimal getPrecio() {
@@ -84,7 +97,4 @@ public class Producto {
                 " | Categoría: " + nombreCategoria;
     }
 
-    public void mostrar() {
-        System.out.println(this);
-    }
 }
